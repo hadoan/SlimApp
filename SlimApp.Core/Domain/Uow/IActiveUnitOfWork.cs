@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 namespace Abp.Domain.Uow
 {
 
+
+
     /// <summary>
     /// This interface is used to work with active unit of work.
     /// This interface can not be injected.
