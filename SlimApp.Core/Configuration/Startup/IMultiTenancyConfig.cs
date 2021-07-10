@@ -4,6 +4,7 @@ using Abp.MultiTenancy;
 
 namespace Abp.Configuration.Startup
 {
+
     /// <summary>
     /// Used to configure multi-tenancy.
     /// </summary>
