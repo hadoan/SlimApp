@@ -69,7 +69,7 @@ namespace SlimApp.Domain.Uow
         /// Does nothing for a filter if it's already disabled. 
         /// Use this method in a using statement to re-enable filters if needed.
         /// </summary>
-        /// <param name="filterNames">One or more filter names. <see cref="AbpDataFilters"/> for standard filters.</param>
+        /// <param name="filterNames">One or more filter names. <see cref="SlimAppDataFilters"/> for standard filters.</param>
         /// <returns>A <see cref="IDisposable"/> handle to take back the disable effect.</returns>
         IDisposable DisableFilter(params string[] filterNames);
 
@@ -78,14 +78,14 @@ namespace SlimApp.Domain.Uow
         /// Does nothing for a filter if it's already enabled.
         /// Use this method in a using statement to re-disable filters if needed.
         /// </summary>
-        /// <param name="filterNames">One or more filter names. <see cref="AbpDataFilters"/> for standard filters.</param>
+        /// <param name="filterNames">One or more filter names. <see cref="SlimAppDataFilters"/> for standard filters.</param>
         /// <returns>A <see cref="IDisposable"/> handle to take back the enable effect.</returns>
         IDisposable EnableFilter(params string[] filterNames);
 
         /// <summary>
         /// Checks if a filter is enabled or not.
         /// </summary>
-        /// <param name="filterName">Name of the filter. <see cref="AbpDataFilters"/> for standard filters.</param>
+        /// <param name="filterName">Name of the filter. <see cref="SlimAppDataFilters"/> for standard filters.</param>
         bool IsFilterEnabled(string filterName);
 
         /// <summary>
@@ -99,14 +99,14 @@ namespace SlimApp.Domain.Uow
         /// <summary>
         /// Disables automatic saving for one or more audit fields.
         /// </summary>
-        /// <param name="fieldNames">One or more audit field names. <see cref="AbpAuditFields"/> for standard fields.</param>
+        /// <param name="fieldNames">One or more audit field names. <see cref="SlimAppAuditFields"/> for standard fields.</param>
         /// <returns>A <see cref="IDisposable"/> handle to take back the disable effect.</returns>
         IDisposable DisableAuditing(params string[] fieldNames);
         
         /// <summary>
         /// Enables automatic saving for one or more audit fields.
         /// </summary>
-        /// <param name="fieldNames">One or more audit field names. <see cref="AbpAuditFields"/> for standard fields.</param>
+        /// <param name="fieldNames">One or more audit field names. <see cref="SlimAppAuditFields"/> for standard fields.</param>
         /// <returns>A <see cref="IDisposable"/> handle to take back the enable effect.</returns>
         IDisposable EnableAuditing(params string[] fieldNames);
         

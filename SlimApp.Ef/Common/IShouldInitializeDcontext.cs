@@ -2,6 +2,6 @@ namespace SlimApp.EntityFramework
 {
     public interface IShouldInitializeDcontext
     {
-        void Initialize(AbpEfDbContextInitializationContext initializationContext);
+        void Initialize(SlimAppEfDbContextInitializationContext initializationContext);
     }
 }

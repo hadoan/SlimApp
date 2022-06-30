@@ -4,41 +4,41 @@ using System.Runtime.Serialization;
 namespace SlimApp.Domain.Uow
 {
     [Serializable]
-    public class AbpDbConcurrencyException : AbpException
+    public class SlimAppDbConcurrencyException : SlimAppException
     {
         /// <summary>
-        /// Creates a new <see cref="AbpDbConcurrencyException"/> object.
+        /// Creates a new <see cref="SlimAppDbConcurrencyException"/> object.
         /// </summary>
-        public AbpDbConcurrencyException()
+        public SlimAppDbConcurrencyException()
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpException"/> object.
+        /// Creates a new <see cref="SlimAppException"/> object.
         /// </summary>
-        public AbpDbConcurrencyException(SerializationInfo serializationInfo, StreamingContext context)
+        public SlimAppDbConcurrencyException(SerializationInfo serializationInfo, StreamingContext context)
             : base(serializationInfo, context)
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpDbConcurrencyException"/> object.
+        /// Creates a new <see cref="SlimAppDbConcurrencyException"/> object.
         /// </summary>
         /// <param name="message">Exception message</param>
-        public AbpDbConcurrencyException(string message)
+        public SlimAppDbConcurrencyException(string message)
             : base(message)
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpDbConcurrencyException"/> object.
+        /// Creates a new <see cref="SlimAppDbConcurrencyException"/> object.
         /// </summary>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Inner exception</param>
-        public AbpDbConcurrencyException(string message, Exception innerException)
+        public SlimAppDbConcurrencyException(string message, Exception innerException)
             : base(message, innerException)
         {
 

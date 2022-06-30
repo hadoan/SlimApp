@@ -3,9 +3,9 @@ namespace SlimApp.Domain.Uow
 
 
     /// <summary>
-    /// Standard filters of ABP.
+    /// Standard filters of SlimApp.
     /// </summary>
-    public static class AbpDataFilters
+    public static class SlimAppDataFilters
     {
         /// <summary>
         /// "SoftDelete".
@@ -30,7 +30,7 @@ namespace SlimApp.Domain.Uow
         public const string MayHaveTenant = "MayHaveTenant";
 
         /// <summary>
-        /// Standard parameters of ABP.
+        /// Standard parameters of SlimApp.
         /// </summary>
         public static class Parameters
         {

@@ -7,41 +7,41 @@ namespace SlimApp
     /// Base exception type for those are thrown by SlimApp system for SlimApp specific exceptions.
     /// </summary>
     [Serializable]
-    public class AbpException : Exception
+    public class SlimAppException : Exception
     {
         /// <summary>
-        /// Creates a new <see cref="AbpException"/> object.
+        /// Creates a new <see cref="SlimAppException"/> object.
         /// </summary>
-        public AbpException()
+        public SlimAppException()
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpException"/> object.
+        /// Creates a new <see cref="SlimAppException"/> object.
         /// </summary>
-        public AbpException(SerializationInfo serializationInfo, StreamingContext context)
+        public SlimAppException(SerializationInfo serializationInfo, StreamingContext context)
             : base(serializationInfo, context)
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpException"/> object.
+        /// Creates a new <see cref="SlimAppException"/> object.
         /// </summary>
         /// <param name="message">Exception message</param>
-        public AbpException(string message)
+        public SlimAppException(string message)
             : base(message)
         {
 
         }
 
         /// <summary>
-        /// Creates a new <see cref="AbpException"/> object.
+        /// Creates a new <see cref="SlimAppException"/> object.
         /// </summary>
         /// <param name="message">Exception message</param>
         /// <param name="innerException">Inner exception</param>
-        public AbpException(string message, Exception innerException)
+        public SlimAppException(string message, Exception innerException)
             : base(message, innerException)
         {
 

@@ -1,17 +1,20 @@
+using Abp.Runtime.Remoting;
+using SlimApp.Configuration.Startup;
 using SlimApp.MultiTenancy;
+using SlimApp.Runtime.Remoting;
 
 namespace SlimApp.Runtime.Session
 {
 
     /// <summary>
-    /// Implements null object pattern for <see cref="IAbpSession"/>.
+    /// Implements null object pattern for <see cref="ISlimAppSession"/>.
     /// </summary>
-    public class NullAbpSession : AbpSessionBase
+    public class NullSlimAppSession : SlimAppSessionBase
     {
         /// <summary>
         /// Singleton instance.
         /// </summary>
-        public static NullAbpSession Instance { get; } = new NullAbpSession();
+        public static NullSlimAppSession Instance { get; } = new NullSlimAppSession();
 
         /// <inheritdoc/>
         public override long? UserId => null;
@@ -25,7 +28,7 @@ namespace SlimApp.Runtime.Session
 
         public override int? ImpersonatorTenantId => null;
 
-        private NullAbpSession() 
+        private NullSlimAppSession() 
             : base(
                   new MultiTenancyConfig(), 
                   new DataContextAmbientScopeProvider<SessionOverride>(new AsyncLocalAmbientDataContext())

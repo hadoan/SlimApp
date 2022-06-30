@@ -8,7 +8,7 @@ namespace SlimApp.Runtime.Session
     /// <summary>
     /// Defines some session information that can be useful for applications.
     /// </summary>
-    public interface IAbpSession
+    public interface ISlimAppSession
     {
         /// <summary>
         /// Gets current UserId or null.

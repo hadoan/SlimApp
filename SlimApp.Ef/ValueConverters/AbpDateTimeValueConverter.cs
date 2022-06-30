@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SlimApp.EntityFrameworkCore.ValueConverters
 {
-    public class AbpDateTimeValueConverter : ValueConverter<DateTime?, DateTime?>
+    public class SlimAppDateTimeValueConverter : ValueConverter<DateTime?, DateTime?>
     {
-        public AbpDateTimeValueConverter(ConverterMappingHints mappingHints = null)
+        public SlimAppDateTimeValueConverter(ConverterMappingHints mappingHints = null)
             : base(Normalize, Normalize, mappingHints)
         {
         }

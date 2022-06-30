@@ -1,43 +1,37 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using System.ComponentModel;
+using System.Data.Common;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SlimApp.Collections.Extensions;
 using SlimApp.Configuration.Startup;
+using SlimApp.Dependency;
+using SlimApp.Domain.Entities;
+using SlimApp.Domain.Entities.Auditing;
+using SlimApp.Domain.Repositories;
 using SlimApp.Domain.Uow;
-using SlimApp.EntityFramework;
+using SlimApp.EntityFrameworkCore;
 using SlimApp.Events.Bus;
 using SlimApp.Events.Bus.Entities;
-using SlimApp.Runtime.Session;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.EntityFrameworkCore.Metadata;
-using SlimApp.Domain.Entities;
-using SlimApp.Timing;
-using SlimApp.EntityFrameworkCore.ValueConverters;
-using SlimApp.EntityFrameworkCore.Utils;
 using SlimApp.Extensions;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using SlimApp.EntityFrameworkCore.Extensions;
-using SlimApp.Domain.Repositories;
-using SlimApp.Collections.Extensions;
-using SlimApp.Domain.Entities.Auditing;
+using SlimApp.Runtime.Session;
+using SlimApp.Timing;
 
-namespace SlimApp.EntityFrameworkCore
+namespace SlimApp.EntityFramework
 {
     /// <summary>
     /// Base class for all DbContext classes in the application.
     /// </summary>
-    public abstract class BaseDbContext : DbContext,  IShouldInitializeDcontext
+    public abstract class SlimAppDbContext : DbContext, ITransientDependency, IShouldInitialize, IShouldInitializeDcontext
     {
         /// <summary>
         /// Used to get current session values.
         /// </summary>
-        public IAbpSession AbpSession { get; set; }
+        public ISlimAppSession SlimAppSession { get; set; }
 
         /// <summary>
         /// Used to trigger entity change events.
@@ -73,25 +67,67 @@ namespace SlimApp.EntityFrameworkCore
         /// Can be used to suppress automatically setting TenantId on SaveChanges.
         /// Default: false.
         /// </summary>
-        public virtual bool SuppressAutoSetTenantId { get; set; }
+        public bool SuppressAutoSetTenantId { get; set; }
 
-        protected virtual int? CurrentTenantId => GetCurrentTenantIdOrNull();
-
-        protected virtual bool IsSoftDeleteFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(AbpDataFilters.SoftDelete) == true;
-
-        protected virtual bool IsMayHaveTenantFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(AbpDataFilters.MayHaveTenant) == true;
-
-        protected virtual bool IsMustHaveTenantFilterEnabled => CurrentTenantId != null && CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(AbpDataFilters.MustHaveTenant) == true;
-
-        private static MethodInfo ConfigureGlobalFiltersMethodInfo = typeof(BaseDbContext).GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static MethodInfo ConfigureGlobalValueConverterMethodInfo = typeof(BaseDbContext).GetMethod(nameof(ConfigureGlobalValueConverter), BindingFlags.Instance | BindingFlags.NonPublic);
+        /// <summary>
+        /// Constructor.
+        /// Uses <see cref="ISlimAppStartupConfiguration.DefaultNameOrConnectionString"/> as connection string.
+        /// </summary>
+        protected SlimAppDbContext()
+        {
+            InitializeDbContext();
+        }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        protected BaseDbContext(DbContextOptions options)
-            : base(options)
+        protected SlimAppDbContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
+        {
+            InitializeDbContext();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        protected SlimAppDbContext(DbCompiledModel model)
+            : base(model)
+        {
+            InitializeDbContext();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        protected SlimAppDbContext(DbConnection existingConnection, bool contextOwnsConnection)
+            : base(existingConnection, contextOwnsConnection)
+        {
+            InitializeDbContext();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        protected SlimAppDbContext(string nameOrConnectionString, DbCompiledModel model)
+            : base(nameOrConnectionString, model)
+        {
+            InitializeDbContext();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        protected SlimAppDbContext(ObjectContext objectContext, bool dbContextOwnsObjectContext)
+            : base(objectContext, dbContextOwnsObjectContext)
+        {
+            InitializeDbContext();
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        protected SlimAppDbContext(DbConnection existingConnection, DbCompiledModel model, bool contextOwnsConnection)
+            : base(existingConnection, model, contextOwnsConnection)
         {
             InitializeDbContext();
         }
@@ -99,148 +135,108 @@ namespace SlimApp.EntityFrameworkCore
         private void InitializeDbContext()
         {
             SetNullsForInjectedProperties();
+            RegisterToChanges();
+        }
+
+        private void RegisterToChanges()
+        {
+            ((IObjectContextAdapter)this)
+                .ObjectContext
+                .ObjectStateManager
+                .ObjectStateManagerChanged += ObjectStateManager_ObjectStateManagerChanged;
+        }
+
+        protected virtual void ObjectStateManager_ObjectStateManagerChanged(object sender, CollectionChangeEventArgs e)
+        {
+            var contextAdapter = (IObjectContextAdapter)this;
+            if (e.Action != CollectionChangeAction.Add)
+            {
+                return;
+            }
+
+            var entry = contextAdapter.ObjectContext.ObjectStateManager.GetObjectStateEntry(e.Element);
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    CheckAndSetId(entry.Entity);
+                    CheckAndSetMustHaveTenantIdProperty(entry.Entity);
+                    SetCreationAuditProperties(entry.Entity, GetAuditUserId());
+                    break;
+                    //case EntityState.Deleted: //It's not going here at all
+                    //    SetDeletionAuditProperties(entry.Entity, GetAuditUserId());
+                    //    break;
+            }
         }
 
         private void SetNullsForInjectedProperties()
         {
             Logger = NullLogger.Instance;
-            AbpSession = NullAbpSession.Instance;
+            SlimAppSession = NullSlimAppSession.Instance;
             EntityChangeEventHelper = NullEntityChangeEventHelper.Instance;
             GuidGenerator = SequentialGuidGenerator.Instance;
             EventBus = NullEventBus.Instance;
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public virtual void Initialize()
+        {
+            Database.Initialize(false);
+            this.SetFilterScopedParameterValue(SlimAppDataFilters.MustHaveTenant, SlimAppDataFilters.Parameters.TenantId,
+                SlimAppSession.TenantId ?? 0);
+            this.SetFilterScopedParameterValue(SlimAppDataFilters.MayHaveTenant, SlimAppDataFilters.Parameters.TenantId,
+                SlimAppSession.TenantId);
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                ConfigureGlobalFiltersMethodInfo
-                    .MakeGenericMethod(entityType.ClrType)
-                    .Invoke(this, new object[] { modelBuilder, entityType });
-
-                ConfigureGlobalValueConverterMethodInfo
-                    .MakeGenericMethod(entityType.ClrType)
-                    .Invoke(this, new object[] { modelBuilder, entityType });
-            }
+            ConfigureFilters(modelBuilder);
         }
 
-        protected void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
-            where TEntity : class
+        protected virtual void ConfigureFilters(DbModelBuilder modelBuilder)
         {
-            if (entityType.BaseType == null && ShouldFilterEntity<TEntity>(entityType))
-            {
-                var filterExpression = CreateFilterExpression<TEntity>();
-                if (filterExpression != null)
-                {
-                    if (entityType.IsKeyless)
-                    {
-                        modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
-                    }
-                    else
-                    {
-                        modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
-                    }
-                }
-            }
+            modelBuilder.Filter(SlimAppDataFilters.SoftDelete, (ISoftDelete d) => d.IsDeleted, false);
+            modelBuilder.Filter(SlimAppDataFilters.MustHaveTenant,
+#pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
+                (IMustHaveTenant t, int tenantId) => t.TenantId == tenantId || (int?)t.TenantId == null,
+#pragma warning restore CS0472 // While "(int?)t.TenantId == null" seems wrong, it's needed. See https://github.com/jcachat/EntityFramework.DynamicFilters/issues/62#issuecomment-208198058
+                0);
+            modelBuilder.Filter(SlimAppDataFilters.MayHaveTenant,
+                (IMayHaveTenant t, int? tenantId) => t.TenantId == tenantId, 0);
         }
 
-        protected virtual bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType) where TEntity : class
-        {
-            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            if (typeof(IMayHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            if (typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        protected virtual Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
-            where TEntity : class
-        {
-            Expression<Func<TEntity, bool>> expression = null;
-
-            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> softDeleteFilter = e => !IsSoftDeleteFilterEnabled || !((ISoftDelete) e).IsDeleted;
-                expression = expression == null ? softDeleteFilter : CombineExpressions(expression, softDeleteFilter);
-            }
-
-            if (typeof(IMayHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> mayHaveTenantFilter = e => !IsMayHaveTenantFilterEnabled || ((IMayHaveTenant)e).TenantId == CurrentTenantId;
-                expression = expression == null ? mayHaveTenantFilter : CombineExpressions(expression, mayHaveTenantFilter);
-            }
-
-            if (typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> mustHaveTenantFilter = e => !IsMustHaveTenantFilterEnabled || ((IMustHaveTenant)e).TenantId == CurrentTenantId;
-                expression = expression == null ? mustHaveTenantFilter : CombineExpressions(expression, mustHaveTenantFilter);
-            }
-
-            return expression;
-        }
-
-        protected void ConfigureGlobalValueConverter<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
-            where TEntity : class
-        {
-            if (entityType.BaseType == null && 
-                !typeof(TEntity).IsDefined(typeof(DisableDateTimeNormalizationAttribute), true) &&
-                !typeof(TEntity).IsDefined(typeof(OwnedAttribute), true) &&
-                !entityType.IsOwned())
-            {
-                var dateTimeValueConverter = new AbpDateTimeValueConverter();
-                var dateTimePropertyInfos = DateTimePropertyInfoHelper.GetDatePropertyInfos(typeof(TEntity));
-                dateTimePropertyInfos.DateTimePropertyInfos.ForEach(property =>
-                {
-                    modelBuilder
-                        .Entity<TEntity>()
-                        .Property(property.Name)
-                        .HasConversion(dateTimeValueConverter);
-                });
-            }
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override int SaveChanges()
         {
             try
             {
-                var changeReport = ApplyAbpConcepts();
+                var changedEntities = ApplySlimAppConcepts();
+                var result = base.SaveChanges();
+                EntityChangeEventHelper.TriggerEvents(changedEntities);
+                return result;
+            }
+            catch (DbEntityValidationException ex)
+            {
+                LogDbEntityValidationException(ex);
+                throw;
+            }
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var changeReport = ApplySlimAppConcepts();
                 var result = await base.SaveChangesAsync(cancellationToken);
                 await EntityChangeEventHelper.TriggerEventsAsync(changeReport);
                 return result;
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (DbEntityValidationException ex)
             {
-                throw new AbpDbConcurrencyException(ex.Message, ex);
+                LogDbEntityValidationException(ex);
+                throw;
             }
         }
 
-        public virtual void Initialize(AbpEfDbContextInitializationContext initializationContext)
-        {
-            var uowOptions = initializationContext.UnitOfWork.Options;
-            if (uowOptions.Timeout.HasValue &&
-                Database.IsRelational() && 
-                !Database.GetCommandTimeout().HasValue)
-            {
-                Database.SetCommandTimeout(uowOptions.Timeout.Value.TotalSeconds.To<int>());
-            }
-            
-            ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
-        }
-        
-        protected virtual EntityChangeReport ApplyAbpConcepts()
+        protected virtual EntityChangeReport ApplySlimAppConcepts()
         {
             var changeReport = new EntityChangeReport();
 
@@ -248,47 +244,70 @@ namespace SlimApp.EntityFrameworkCore
 
             foreach (var entry in ChangeTracker.Entries().ToList())
             {
-                if (entry.State != EntityState.Modified && entry.CheckOwnedEntityChange())
-                {
-                    Entry(entry.Entity).State = EntityState.Modified;
-                }
-
-                ApplyAbpConcepts(entry, userId, changeReport);
+                ApplySlimAppConcepts(entry, userId, changeReport);
             }
 
             return changeReport;
         }
 
-        protected virtual void ApplyAbpConcepts(EntityEntry entry, long? userId, EntityChangeReport changeReport)
+        public virtual void Initialize(SlimAppEfDbContextInitializationContext initializationContext)
+        {
+            var uowOptions = initializationContext.UnitOfWork.Options;
+            if (uowOptions.Timeout.HasValue && !Database.CommandTimeout.HasValue)
+            {
+                Database.CommandTimeout = uowOptions.Timeout.Value.TotalSeconds.To<int>();
+            }
+
+            if (Clock.SupportsMultipleTimezone)
+            {
+                ((IObjectContextAdapter)this).ObjectContext.ObjectMaterialized += (sender, args) =>
+                {
+                    var entityType = ObjectContext.GetObjectType(args.Entity.GetType());
+
+                    Configuration.AutoDetectChangesEnabled = false;
+                    var previousState = Entry(args.Entity).State;
+
+                    DateTimePropertyInfoHelper.NormalizeDatePropertyKinds(args.Entity, entityType);
+
+                    Entry(args.Entity).State = previousState;
+                    Configuration.AutoDetectChangesEnabled = true;
+                };
+            }
+        }
+
+        protected virtual void ApplySlimAppConcepts(DbEntityEntry entry, long? userId, EntityChangeReport changeReport)
         {
             switch (entry.State)
             {
                 case EntityState.Added:
-                    ApplyAbpConceptsForAddedEntity(entry, userId, changeReport);
+                    ApplySlimAppConceptsForAddedEntity(entry, userId, changeReport);
                     break;
                 case EntityState.Modified:
-                    ApplyAbpConceptsForModifiedEntity(entry, userId, changeReport);
+                    ApplySlimAppConceptsForModifiedEntity(entry, userId, changeReport);
                     break;
                 case EntityState.Deleted:
-                    ApplyAbpConceptsForDeletedEntity(entry, userId, changeReport);
+                    ApplySlimAppConceptsForDeletedEntity(entry, userId, changeReport);
                     break;
             }
 
             AddDomainEvents(changeReport.DomainEvents, entry.Entity);
         }
 
-        protected virtual void ApplyAbpConceptsForAddedEntity(EntityEntry entry, long? userId, EntityChangeReport changeReport)
+        protected virtual void ApplySlimAppConceptsForAddedEntity(DbEntityEntry entry, long? userId,
+            EntityChangeReport changeReport)
         {
-            CheckAndSetId(entry);
+            CheckAndSetId(entry.Entity);
             CheckAndSetMustHaveTenantIdProperty(entry.Entity);
             CheckAndSetMayHaveTenantIdProperty(entry.Entity);
             SetCreationAuditProperties(entry.Entity, userId);
             changeReport.ChangedEntities.Add(new EntityChangeEntry(entry.Entity, EntityChangeType.Created));
         }
 
-        protected virtual void ApplyAbpConceptsForModifiedEntity(EntityEntry entry, long? userId, EntityChangeReport changeReport)
+        protected virtual void ApplySlimAppConceptsForModifiedEntity(DbEntityEntry entry, long? userId,
+            EntityChangeReport changeReport)
         {
             SetModificationAuditProperties(entry.Entity, userId);
+
             if (entry.Entity is ISoftDelete && entry.Entity.As<ISoftDelete>().IsDeleted)
             {
                 SetDeletionAuditProperties(entry.Entity, userId);
@@ -300,7 +319,8 @@ namespace SlimApp.EntityFrameworkCore
             }
         }
 
-        protected virtual void ApplyAbpConceptsForDeletedEntity(EntityEntry entry, long? userId, EntityChangeReport changeReport)
+        protected virtual void ApplySlimAppConceptsForDeletedEntity(DbEntityEntry entry, long? userId,
+            EntityChangeReport changeReport)
         {
             if (IsHardDeleteEntity(entry))
             {
@@ -313,13 +333,13 @@ namespace SlimApp.EntityFrameworkCore
             changeReport.ChangedEntities.Add(new EntityChangeEntry(entry.Entity, EntityChangeType.Deleted));
         }
 
-        protected virtual bool IsHardDeleteEntity(EntityEntry entry)
+        protected virtual bool IsHardDeleteEntity(DbEntityEntry entry)
         {
             if (!EntityHelper.IsEntity(entry.Entity.GetType()))
             {
                 return false;
             }
-            
+
             if (CurrentUnitOfWorkProvider?.Current?.Items == null)
             {
                 return false;
@@ -354,23 +374,73 @@ namespace SlimApp.EntityFrameworkCore
                 return;
             }
 
-            domainEvents.AddRange(generatesDomainEventsEntity.DomainEvents.Select(eventData => new DomainEventEntry(entityAsObj, eventData)));
+            domainEvents.AddRange(
+                generatesDomainEventsEntity.DomainEvents.Select(
+                    eventData => new DomainEventEntry(entityAsObj, eventData)));
             generatesDomainEventsEntity.DomainEvents.Clear();
         }
 
-        protected virtual void CheckAndSetId(EntityEntry entry)
+        protected virtual void CheckAndSetId(object entityAsObj)
         {
             //Set GUID Ids
-            var entity = entry.Entity as IEntity<Guid>;
+            var entity = entityAsObj as IEntity<Guid>;
             if (entity != null && entity.Id == Guid.Empty)
             {
-                var idPropertyEntry = entry.Property("Id");
+                var entityType = ObjectContext.GetObjectType(entityAsObj.GetType());
+                var idIdPropertyName = GetIdPropertyName(entityType);
+                var edmProperty = GetEdmProperty(entityType, idIdPropertyName);
 
-                if (idPropertyEntry != null && idPropertyEntry.Metadata.ValueGenerated == ValueGenerated.Never)
+                if (edmProperty != null && edmProperty.StoreGeneratedPattern == StoreGeneratedPattern.None)
                 {
                     entity.Id = GuidGenerator.Create();
                 }
             }
+        }
+
+        EdmProperty GetEdmProperty(Type type, string propertyName)
+        {
+            var metadata = ((IObjectContextAdapter)this).ObjectContext.MetadataWorkspace;
+
+            var objectItemCollection = ((ObjectItemCollection)metadata.GetItemCollection(DataSpace.OSpace));
+
+            var entityType = metadata.GetItems<EntityType>(DataSpace.OSpace)
+                .Single(t => objectItemCollection.GetClrType(t) == type);
+
+            var entitySet = metadata.GetItems<EntityContainer>(DataSpace.SSpace).Single().EntitySets
+                .Single(s => s.ElementType.Name == entityType.Name);
+
+            return entitySet.ElementType.Properties.Single(e =>
+                string.Equals(e.Name, propertyName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        string GetIdPropertyName(Type type)
+        {
+            var metadata = ((IObjectContextAdapter)this).ObjectContext.MetadataWorkspace;
+
+            var objectItemCollection = ((ObjectItemCollection)metadata.GetItemCollection(DataSpace.OSpace));
+
+            var entityType = metadata.GetItems<EntityType>(DataSpace.OSpace)
+                .Single(t => objectItemCollection.GetClrType(t) == type);
+
+            var entitySetCSpace = metadata
+                .GetItems<EntityContainer>(DataSpace.CSpace)
+                .Single()
+                .EntitySets
+                .Single(s => s.ElementType.Name == entityType.Name);
+
+            var mapping = metadata.GetItems<EntityContainerMapping>(DataSpace.CSSpace)
+                .Single()
+                .EntitySetMappings
+                .Single(s => s.EntitySet == entitySetCSpace);
+
+            return mapping
+                .EntityTypeMappings.Single()
+                .Fragments.Single()
+                .PropertyMappings
+                .OfType<ScalarPropertyMapping>()
+                .Single(m => m.Property.Name == nameof(Entity.Id))
+                .Column
+                .Name;
         }
 
         protected virtual void CheckAndSetMustHaveTenantIdProperty(object entityAsObj)
@@ -402,19 +472,13 @@ namespace SlimApp.EntityFrameworkCore
             }
             else
             {
-                throw new AbpException("Can not set TenantId to 0 for IMustHaveTenant entities!");
+                throw new SlimAppException("Can not set TenantId to 0 for IMustHaveTenant entities!");
             }
         }
 
         protected virtual void CheckAndSetMayHaveTenantIdProperty(object entityAsObj)
         {
             if (SuppressAutoSetTenantId)
-            {
-                return;
-            }
-
-            //Only works for single tenant applications
-            if (MultiTenancyConfig?.IsEnabled ?? false)
             {
                 return;
             }
@@ -433,6 +497,18 @@ namespace SlimApp.EntityFrameworkCore
                 return;
             }
 
+            //Only works for single tenant applications
+            if (MultiTenancyConfig?.IsEnabled ?? false)
+            {
+                return;
+            }
+
+            //Don't set if MayHaveTenant filter is disabled
+            if (!this.IsFilterEnabled(SlimAppDataFilters.MayHaveTenant))
+            {
+                return;
+            }
+
             entity.TenantId = GetCurrentTenantIdOrNull();
         }
 
@@ -441,7 +517,7 @@ namespace SlimApp.EntityFrameworkCore
             EntityAuditingHelper.SetCreationAuditProperties(
                 MultiTenancyConfig,
                 entityAsObj,
-                AbpSession.TenantId,
+                SlimAppSession.TenantId,
                 userId,
                 CurrentUnitOfWorkProvider?.Current?.AuditFieldConfiguration
             );
@@ -452,22 +528,23 @@ namespace SlimApp.EntityFrameworkCore
             EntityAuditingHelper.SetModificationAuditProperties(
                 MultiTenancyConfig,
                 entityAsObj,
-                AbpSession.TenantId,
+                SlimAppSession.TenantId,
                 userId,
                 CurrentUnitOfWorkProvider?.Current?.AuditFieldConfiguration
             );
         }
 
-        protected virtual void CancelDeletionForSoftDelete(EntityEntry entry)
+        protected virtual void CancelDeletionForSoftDelete(DbEntityEntry entry)
         {
             if (!(entry.Entity is ISoftDelete))
             {
                 return;
             }
 
-            entry.Reload();
-            entry.State = EntityState.Modified;
-            entry.Entity.As<ISoftDelete>().IsDeleted = true;
+            var softDeleteEntry = entry.Cast<ISoftDelete>();
+            softDeleteEntry.Reload();
+            softDeleteEntry.State = EntityState.Modified;
+            softDeleteEntry.Entity.IsDeleted = true;
         }
 
         protected virtual void SetDeletionAuditProperties(object entityAsObj, long? userId)
@@ -475,20 +552,29 @@ namespace SlimApp.EntityFrameworkCore
             EntityAuditingHelper.SetDeletionAuditProperties(
                 MultiTenancyConfig,
                 entityAsObj,
-                AbpSession.TenantId,
+                SlimAppSession.TenantId,
                 userId,
                 CurrentUnitOfWorkProvider?.Current?.AuditFieldConfiguration
             );
         }
 
+        protected virtual void LogDbEntityValidationException(DbEntityValidationException exception)
+        {
+            Logger.Error("There are some validation errors while saving changes in EntityFramework:");
+            foreach (var ve in exception.EntityValidationErrors.SelectMany(eve => eve.ValidationErrors))
+            {
+                Logger.Error(" - " + ve.PropertyName + ": " + ve.ErrorMessage);
+            }
+        }
+
         protected virtual long? GetAuditUserId()
         {
-            if (AbpSession.UserId.HasValue &&
+            if (SlimAppSession.UserId.HasValue &&
                 CurrentUnitOfWorkProvider != null &&
                 CurrentUnitOfWorkProvider.Current != null &&
-                CurrentUnitOfWorkProvider.Current.GetTenantId() == AbpSession.TenantId)
+                CurrentUnitOfWorkProvider.Current.GetTenantId() == SlimAppSession.TenantId)
             {
-                return AbpSession.UserId;
+                return SlimAppSession.UserId;
             }
 
             return null;
@@ -496,18 +582,12 @@ namespace SlimApp.EntityFrameworkCore
 
         protected virtual int? GetCurrentTenantIdOrNull()
         {
-            if (CurrentUnitOfWorkProvider != null &&
-                CurrentUnitOfWorkProvider.Current != null)
+            if (CurrentUnitOfWorkProvider?.Current != null)
             {
                 return CurrentUnitOfWorkProvider.Current.GetTenantId();
             }
 
-            return AbpSession.TenantId;
-        }
-
-        protected virtual Expression<Func<T, bool>> CombineExpressions<T>(Expression<Func<T, bool>> expression1, Expression<Func<T, bool>> expression2)
-        {
-            return ExpressionCombiner.Combine(expression1, expression2);
+            return SlimAppSession.TenantId;
         }
     }
 }

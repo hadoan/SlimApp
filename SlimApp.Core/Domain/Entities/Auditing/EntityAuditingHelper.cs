@@ -65,7 +65,7 @@ namespace SlimApp.Domain.Entities.Auditing
                 }
             }
 
-            var creationUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == AbpAuditFields.CreationUserId);
+            var creationUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == SlimAppAuditFields.CreationUserId);
             if (creationUserIdFilter != null && !creationUserIdFilter.IsSavingEnabled)
             {
                 return;
@@ -120,7 +120,7 @@ namespace SlimApp.Domain.Entities.Auditing
                 }
             }
 
-            var lastModifierUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == AbpAuditFields.LastModifierUserId);
+            var lastModifierUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == SlimAppAuditFields.LastModifierUserId);
             if (lastModifierUserIdFilter != null && !lastModifierUserIdFilter.IsSavingEnabled)
             {
                 return;
@@ -162,7 +162,7 @@ namespace SlimApp.Domain.Entities.Auditing
                     return;
                 }
 
-                var deleterUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == AbpAuditFields.DeleterUserId);
+                var deleterUserIdFilter = auditFields.FirstOrDefault(e => e.FieldName == SlimAppAuditFields.DeleterUserId);
                 if (deleterUserIdFilter != null && !deleterUserIdFilter.IsSavingEnabled)
                 {
                     return;

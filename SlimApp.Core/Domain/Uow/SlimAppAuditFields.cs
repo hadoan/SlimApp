@@ -1,9 +1,9 @@
 namespace SlimApp.Domain.Uow
 {
     /// <summary>
-    /// Standard filters of ABP.
+    /// Standard filters of SlimApp.
     /// </summary>
-    public static class AbpAuditFields
+    public static class SlimAppAuditFields
     {
         public const string CreationUserId = "CreationUserId";
         

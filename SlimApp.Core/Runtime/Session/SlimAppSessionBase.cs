@@ -4,7 +4,7 @@ using System;
 
 namespace SlimApp.Runtime.Session
 {
-    public abstract class AbpSessionBase : IAbpSession
+    public abstract class SlimAppSessionBase : ISlimAppSession
     {
         public const string SessionOverrideContextKey = "SlimApp.Runtime.Session.Override";
 
@@ -31,7 +31,7 @@ namespace SlimApp.Runtime.Session
         protected SessionOverride OverridedValue => SessionOverrideScopeProvider.GetValue(SessionOverrideContextKey);
         protected IAmbientScopeProvider<SessionOverride> SessionOverrideScopeProvider { get; }
 
-        protected AbpSessionBase(IMultiTenancyConfig multiTenancy, IAmbientScopeProvider<SessionOverride> sessionOverrideScopeProvider)
+        protected SlimAppSessionBase(IMultiTenancyConfig multiTenancy, IAmbientScopeProvider<SessionOverride> sessionOverrideScopeProvider)
         {
             MultiTenancy = multiTenancy;
             SessionOverrideScopeProvider = sessionOverrideScopeProvider;

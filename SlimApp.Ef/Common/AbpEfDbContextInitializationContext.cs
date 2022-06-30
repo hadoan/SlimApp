@@ -2,11 +2,11 @@ using SlimApp.Domain.Uow;
 
 namespace SlimApp.EntityFramework
 {
-    public class AbpEfDbContextInitializationContext
+    public class SlimAppEfDbContextInitializationContext
     {
         public IUnitOfWork UnitOfWork { get; }
 
-        public AbpEfDbContextInitializationContext(IUnitOfWork unitOfWork)
+        public SlimAppEfDbContextInitializationContext(IUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
         }

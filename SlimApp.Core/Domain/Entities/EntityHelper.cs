@@ -33,14 +33,14 @@ namespace SlimApp.Domain.Entities
                 }
             }
 
-            throw new AbpException("Can not find primary key type of given entity type: " + entityType + ". Be sure that this entity type implements IEntity<TPrimaryKey> interface");
+            throw new SlimAppException("Can not find primary key type of given entity type: " + entityType + ". Be sure that this entity type implements IEntity<TPrimaryKey> interface");
         }
 
         public static object GetEntityId(object entity)
         {
             if (!ReflectionHelper.IsAssignableToGenericType(entity.GetType(), typeof(IEntity<>)))
             {
-                throw new AbpException(entity.GetType() + " is not an Entity !");
+                throw new SlimAppException(entity.GetType() + " is not an Entity !");
             }
 
             return ReflectionHelper.GetValueByPath(entity, entity.GetType(), "Id");
