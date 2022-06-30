@@ -1,6 +1,6 @@
 using System;
 
-namespace Abp
+namespace SlimApp
 {
     /// <summary>
     /// Used to generate Ids.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 
-namespace Abp.Domain.Uow
+namespace SlimApp.Domain.Uow
 {
 
     /// <summary>

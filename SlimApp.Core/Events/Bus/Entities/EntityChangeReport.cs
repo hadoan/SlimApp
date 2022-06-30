@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Abp.Events.Bus.Entities
+namespace SlimApp.Events.Bus.Entities
 {
     public class EntityChangeReport
     {

@@ -1,4 +1,4 @@
-namespace Abp.MultiTenancy
+namespace SlimApp.MultiTenancy
 {
     public interface ITenantResolveContributor
     {

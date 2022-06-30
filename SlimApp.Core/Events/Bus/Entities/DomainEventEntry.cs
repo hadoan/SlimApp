@@ -1,6 +1,6 @@
 using System;
 
-namespace Abp.Events.Bus.Entities
+namespace SlimApp.Events.Bus.Entities
 {
     [Serializable]
     public class DomainEventEntry

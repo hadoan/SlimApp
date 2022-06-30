@@ -1,4 +1,4 @@
-namespace Abp.Domain.Uow
+namespace SlimApp.Domain.Uow
 {
     public class AuditFieldConfiguration
     {

@@ -1,4 +1,4 @@
-namespace Abp.Domain.Repositories
+namespace SlimApp.Domain.Repositories
 {
     public class UnitOfWorkExtensionDataTypes
     {

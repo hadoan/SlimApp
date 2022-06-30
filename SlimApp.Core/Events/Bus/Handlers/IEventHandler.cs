@@ -1,4 +1,4 @@
-namespace Abp.Events.Bus.Handlers
+namespace SlimApp.Events.Bus.Handlers
 {
     /// <summary>
     /// Undirect base interface for all event handlers.

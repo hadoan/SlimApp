@@ -6,28 +6,28 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Abp.Configuration.Startup;
-using Abp.Domain.Uow;
-using Abp.EntityFramework;
-using Abp.Events.Bus;
-using Abp.Events.Bus.Entities;
-using Abp.Runtime.Session;
+using SlimApp.Configuration.Startup;
+using SlimApp.Domain.Uow;
+using SlimApp.EntityFramework;
+using SlimApp.Events.Bus;
+using SlimApp.Events.Bus.Entities;
+using SlimApp.Runtime.Session;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Abp.Domain.Entities;
-using Abp.Timing;
-using Abp.EntityFrameworkCore.ValueConverters;
-using Abp.EntityFrameworkCore.Utils;
-using Abp.Extensions;
+using SlimApp.Domain.Entities;
+using SlimApp.Timing;
+using SlimApp.EntityFrameworkCore.ValueConverters;
+using SlimApp.EntityFrameworkCore.Utils;
+using SlimApp.Extensions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Abp.EntityFrameworkCore.Extensions;
-using Abp.Domain.Repositories;
-using Abp.Collections.Extensions;
-using Abp.Domain.Entities.Auditing;
+using SlimApp.EntityFrameworkCore.Extensions;
+using SlimApp.Domain.Repositories;
+using SlimApp.Collections.Extensions;
+using SlimApp.Domain.Entities.Auditing;
 
-namespace Abp.EntityFrameworkCore
+namespace SlimApp.EntityFrameworkCore
 {
     /// <summary>
     /// Base class for all DbContext classes in the application.

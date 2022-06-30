@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
-using Abp.MultiTenancy;
-using Abp.Reflection;
+using SlimApp.MultiTenancy;
+using SlimApp.Reflection;
 
-namespace Abp.Domain.Entities
+namespace SlimApp.Domain.Entities
 {
     /// <summary>
     /// Some helper methods for entities.

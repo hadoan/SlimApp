@@ -1,7 +1,7 @@
 using System;
-using Abp.Events.Bus.Handlers;
+using SlimApp.Events.Bus.Handlers;
 
-namespace Abp.Events.Bus.Factories
+namespace SlimApp.Events.Bus.Factories
 {
     /// <summary>
     /// Defines an interface for factories those are responsible to create/get and release of event handlers.

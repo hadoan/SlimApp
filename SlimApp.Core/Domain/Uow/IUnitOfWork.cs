@@ -1,4 +1,4 @@
-namespace Abp.Domain.Uow
+namespace SlimApp.Domain.Uow
 {
     /// <summary>
     /// Defines a unit of work.

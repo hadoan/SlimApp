@@ -1,4 +1,4 @@
-namespace Abp.Domain.Entities
+namespace SlimApp.Domain.Entities
 {
     /// <summary>
     /// Used to standardize soft deleting entities.

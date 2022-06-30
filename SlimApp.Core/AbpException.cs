@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Abp
+namespace SlimApp
 {
     /// <summary>
-    /// Base exception type for those are thrown by Abp system for Abp specific exceptions.
+    /// Base exception type for those are thrown by SlimApp system for SlimApp specific exceptions.
     /// </summary>
     [Serializable]
     public class AbpException : Exception

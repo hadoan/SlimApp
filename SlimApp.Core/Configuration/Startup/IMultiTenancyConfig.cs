@@ -1,8 +1,8 @@
 using System.Collections;
-using Abp.Collections;
-using Abp.MultiTenancy;
+using SlimApp.Collections;
+using SlimApp.MultiTenancy;
 
-namespace Abp.Configuration.Startup
+namespace SlimApp.Configuration.Startup
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace Abp.Configuration.Startup
 
         /// <summary>
         /// TenantId resolve key
-        /// Default value: "Abp.TenantId"
+        /// Default value: "SlimApp.TenantId"
         /// </summary>
         string TenantIdResolveKey { get; set; }
     }

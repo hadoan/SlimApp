@@ -1,10 +1,10 @@
 using System;
 using System.Linq.Expressions;
-using Abp.Timing;
+using SlimApp.Timing;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Abp.EntityFrameworkCore.ValueConverters
+namespace SlimApp.EntityFrameworkCore.ValueConverters
 {
     public class AbpDateTimeValueConverter : ValueConverter<DateTime?, DateTime?>
     {

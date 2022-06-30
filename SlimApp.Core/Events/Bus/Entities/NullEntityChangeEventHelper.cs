@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Abp.Events.Bus.Entities
+namespace SlimApp.Events.Bus.Entities
 {
     /// <summary>
     /// Null-object implementation of <see cref="IEntityChangeEventHelper"/>.

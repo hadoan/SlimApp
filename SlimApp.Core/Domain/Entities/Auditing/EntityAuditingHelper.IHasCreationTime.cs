@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Abp.Domain.Entities.Auditing
+namespace SlimApp.Domain.Entities.Auditing
 {
     public static partial class EntityAuditingHelper
     {

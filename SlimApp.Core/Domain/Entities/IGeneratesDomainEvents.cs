@@ -1,7 +1,7 @@
-using Abp.Events.Bus;
+using SlimApp.Events.Bus;
 using System.Collections.Generic;
 
-namespace Abp.Domain.Entities
+namespace SlimApp.Domain.Entities
 {
     public interface IGeneratesDomainEvents
     {

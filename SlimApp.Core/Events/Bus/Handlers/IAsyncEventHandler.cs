@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Abp.Events.Bus.Handlers
+namespace SlimApp.Events.Bus.Handlers
 {
     /// <summary>
     /// Defines an interface of a class that handles events asynchrounously of type <see cref="IAsyncEventHandler{TEventData}"/>.

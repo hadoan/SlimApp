@@ -1,6 +1,6 @@
 using System;
 
-namespace Abp.Timing
+namespace SlimApp.Timing
 {
     /// <summary>
     /// Used to perform some common date-time operations.

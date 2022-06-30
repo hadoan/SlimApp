@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Abp.Events.Bus.Entities
+namespace SlimApp.Events.Bus.Entities
 {
     /// <summary>
     /// Used to trigger entity change events.

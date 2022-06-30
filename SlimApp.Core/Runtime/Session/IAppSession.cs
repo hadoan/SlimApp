@@ -1,7 +1,7 @@
 using System;
-using Abp.MultiTenancy;
+using SlimApp.MultiTenancy;
 
-namespace Abp.Runtime.Session
+namespace SlimApp.Runtime.Session
 {
 
 

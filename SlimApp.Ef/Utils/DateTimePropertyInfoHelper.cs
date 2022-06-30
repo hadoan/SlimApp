@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using Abp.Reflection;
-using Abp.Timing;
+using SlimApp.Reflection;
+using SlimApp.Timing;
 using Microsoft.EntityFrameworkCore;
 
-namespace Abp.EntityFrameworkCore.Utils
+namespace SlimApp.EntityFrameworkCore.Utils
 {
     internal static partial class DateTimePropertyInfoHelper
     {

@@ -1,6 +1,6 @@
-using Abp.Events.Bus;
+using SlimApp.Events.Bus;
 
-namespace Abp.Domain.Entities
+namespace SlimApp.Domain.Entities
 {
     public interface IAggregateRoot : IAggregateRoot<int>, IEntity
     {

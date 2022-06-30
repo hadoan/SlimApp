@@ -1,4 +1,4 @@
-namespace Abp.EntityFramework
+namespace SlimApp.EntityFramework
 {
     public interface IShouldInitializeDcontext
     {

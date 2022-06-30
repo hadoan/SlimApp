@@ -1,6 +1,6 @@
-using Abp.Domain.Uow;
+using SlimApp.Domain.Uow;
 
-namespace Abp.EntityFramework
+namespace SlimApp.EntityFramework
 {
     public class AbpEfDbContextInitializationContext
     {

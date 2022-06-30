@@ -1,4 +1,4 @@
-﻿namespace Abp.Runtime.Session
+﻿namespace SlimApp.Runtime.Session
 {
     public class SessionOverride
     {

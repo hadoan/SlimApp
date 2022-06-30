@@ -1,12 +1,12 @@
-using Abp.Timing;
+using SlimApp.Timing;
 using System.Collections.Generic;
 using System.Linq;
-using Abp.Configuration.Startup;
-using Abp.Domain.Uow;
-using Abp.MultiTenancy;
-using Abp.Extensions;
+using SlimApp.Configuration.Startup;
+using SlimApp.Domain.Uow;
+using SlimApp.MultiTenancy;
+using SlimApp.Extensions;
 
-namespace Abp.Domain.Entities.Auditing
+namespace SlimApp.Domain.Entities.Auditing
 {
     public static partial class EntityAuditingHelper
     {

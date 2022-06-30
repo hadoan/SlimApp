@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Abp.Events.Bus.Factories;
-using Abp.Events.Bus.Handlers;
+using SlimApp.Events.Bus.Factories;
+using SlimApp.Events.Bus.Handlers;
 
-namespace Abp.Events.Bus
+namespace SlimApp.Events.Bus
 {
     /// <summary>
     /// Defines interface of the event bus.

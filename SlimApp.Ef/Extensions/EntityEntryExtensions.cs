@@ -2,7 +2,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Abp.EntityFrameworkCore.Extensions
+namespace SlimApp.EntityFrameworkCore.Extensions
 {
     public static class EntityEntryExtensions
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Abp.Domain.Uow
+namespace SlimApp.Domain.Uow
 {
     public class DataFilterConfiguration
     {

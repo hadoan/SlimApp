@@ -1,4 +1,4 @@
-﻿namespace Abp.Domain.Entities.Auditing
+﻿namespace SlimApp.Domain.Entities.Auditing
 {
 
     /// <summary>

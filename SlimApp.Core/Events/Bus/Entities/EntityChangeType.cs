@@ -1,4 +1,4 @@
-namespace Abp.Events.Bus.Entities
+namespace SlimApp.Events.Bus.Entities
 {
     public enum EntityChangeType : byte
     {

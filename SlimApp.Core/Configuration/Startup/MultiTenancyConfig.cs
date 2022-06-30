@@ -1,7 +1,7 @@
-using Abp.Collections;
-using Abp.MultiTenancy;
+using SlimApp.Collections;
+using SlimApp.MultiTenancy;
 
-namespace Abp.Configuration.Startup
+namespace SlimApp.Configuration.Startup
 {
     /// <summary>
     /// Used to configure multi-tenancy.
@@ -27,7 +27,7 @@ namespace Abp.Configuration.Startup
         public MultiTenancyConfig()
         {
             Resolvers = new TypeList<ITenantResolveContributor>();
-            TenantIdResolveKey = "Abp.TenantId";
+            TenantIdResolveKey = "TenantId";
         }
     }
 }

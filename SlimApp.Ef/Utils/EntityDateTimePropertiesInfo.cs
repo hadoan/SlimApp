@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace Abp.EntityFrameworkCore.Utils
+namespace SlimApp.EntityFrameworkCore.Utils
 {
     internal static partial class DateTimePropertyInfoHelper
     {

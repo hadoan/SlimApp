@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Abp.Domain.Uow
+namespace SlimApp.Domain.Uow
 {
     [Serializable]
     public class AbpDbConcurrencyException : AbpException

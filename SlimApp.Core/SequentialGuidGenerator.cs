@@ -1,8 +1,8 @@
 using System;
 using System.Security.Cryptography;
-using Abp.Threading.Extensions;
+using SlimApp.Threading.Extensions;
 
-namespace Abp
+namespace SlimApp
 {
     /// <summary>
     /// Implements <see cref="IGuidGenerator"/> by creating sequential Guids.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Abp.Runtime
+namespace SlimApp.Runtime
 {
     public interface IAmbientScopeProvider<T>
     {

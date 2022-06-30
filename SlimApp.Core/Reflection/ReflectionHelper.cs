@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Abp.Reflection
+namespace SlimApp.Reflection
 {
     /// <summary>
     /// Defines helper methods for reflection.

@@ -1,12 +1,12 @@
-using Abp.Configuration.Startup;
-using Abp.MultiTenancy;
+using SlimApp.Configuration.Startup;
+using SlimApp.MultiTenancy;
 using System;
 
-namespace Abp.Runtime.Session
+namespace SlimApp.Runtime.Session
 {
     public abstract class AbpSessionBase : IAbpSession
     {
-        public const string SessionOverrideContextKey = "Abp.Runtime.Session.Override";
+        public const string SessionOverrideContextKey = "SlimApp.Runtime.Session.Override";
 
         public IMultiTenancyConfig MultiTenancy { get; }
 
