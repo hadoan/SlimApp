@@ -1,4 +1,4 @@
-using Abp.Runtime.Remoting;
+using SlimApp.Runtime.Remoting;
 using SlimApp.Configuration.Startup;
 using SlimApp.MultiTenancy;
 using SlimApp.Runtime.Remoting;

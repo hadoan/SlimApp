@@ -3,7 +3,7 @@ using SlimApp.Runtime;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Abp.Runtime.Remoting
+namespace SlimApp.Runtime.Remoting
 {
     public class AsyncLocalAmbientDataContext : IAmbientDataContext, ISingletonDependency
     {

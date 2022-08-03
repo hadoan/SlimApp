@@ -7,18 +7,20 @@ namespace SlimApp.Events.Bus.Entities
     /// </summary>
     public interface IEntityChangeEventHelper
     {
+        void TriggerEvents(EntityChangeReport changeReport);
+
         Task TriggerEventsAsync(EntityChangeReport changeReport);
 
-        Task TriggerEntityCreatingEventAsync(object entity);
+        void TriggerEntityCreatingEvent(object entity);
 
-        Task TriggerEntityCreatedEventOnUowCompletedAsync(object entity);
+        void TriggerEntityCreatedEventOnUowCompleted(object entity);
 
-        Task TriggerEntityUpdatingEventAsync(object entity);
+        void TriggerEntityUpdatingEvent(object entity);
 
-        Task TriggerEntityUpdatedEventOnUowCompletedAsync(object entity);
+        void TriggerEntityUpdatedEventOnUowCompleted(object entity);
 
-        Task TriggerEntityDeletingEventAsync(object entity);
+        void TriggerEntityDeletingEvent(object entity);
 
-        Task TriggerEntityDeletedEventOnUowCompletedAsync(object entity);
+        void TriggerEntityDeletedEventOnUowCompleted(object entity);
     }
 }

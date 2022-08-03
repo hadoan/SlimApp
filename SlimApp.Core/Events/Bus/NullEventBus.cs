@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using SlimApp.Core.Utils;
 using SlimApp.Events.Bus.Factories;
 using SlimApp.Events.Bus.Handlers;
-using SlimApp.Utils.Etc;
 
 namespace SlimApp.Events.Bus
 {
